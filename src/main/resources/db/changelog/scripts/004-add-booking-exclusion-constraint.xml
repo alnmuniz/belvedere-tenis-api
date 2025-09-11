@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+
+    <changeSet id="4" author="seu-nome">
+        <sql endDelimiter=";">
+            ALTER TABLE belvedere.bookings
+            ADD CONSTRAINT no_overlapping_bookings
+            EXCLUDE USING gist (tstzrange(start_time, end_time) WITH &amp;&amp;);
+        </sql>
+        <rollback>
+            ALTER TABLE belvedere.bookings DROP CONSTRAINT no_overlapping_bookings;
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

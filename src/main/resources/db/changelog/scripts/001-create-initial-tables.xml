@@ -25,10 +25,10 @@
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="start_time" type="TIMESTAMP">
+            <column name="start_time" type="TIMESTAMPTZ">
                 <constraints nullable="false"/>
             </column>
-            <column name="end_time" type="TIMESTAMP">
+            <column name="end_time" type="TIMESTAMPTZ">
                 <constraints nullable="false"/>
             </column>
             <column name="booking_type" type="VARCHAR(50)"/>

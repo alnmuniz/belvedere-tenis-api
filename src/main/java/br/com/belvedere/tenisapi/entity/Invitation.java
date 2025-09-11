@@ -2,7 +2,7 @@ package br.com.belvedere.tenisapi.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Data
 @Entity
@@ -25,5 +25,5 @@ public class Invitation {
     private String status;
 
     @Column(name = "expires_at")
-    private LocalDateTime expiresAt;
+    private Instant expiresAt;
 }

@@ -4,10 +4,12 @@ spring:
     hibernate:
       # 'create-drop' recria as tabelas a cada inicialização da aplicação
       # Útil para desenvolvimento, mas NUNCA deve ser usado em produção
-      ddl-auto: create-drop
+      ddl-auto: validate
     # Mostra no console o SQL gerado pelo Hibernate
     show-sql: true
     properties:
       hibernate:
         format_sql: true
         default_schema: belvedere
+  liquibase:
+    drop-first: true

@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Arrays;
 
 @Component
@@ -52,8 +53,8 @@ public class DataInitializer implements CommandLineRunner {
         Booking booking1 = new Booking();
         booking1.setUser(user1);
         // Horário nobre da manhã
-        booking1.setStartTime(LocalDateTime.of(2025, 9, 10, 8, 0));
-        booking1.setEndTime(LocalDateTime.of(2025, 9, 10, 9, 0));
+        booking1.setStartTime(LocalDateTime.of(2025, 9, 10, 8, 0).atZone(ZoneId.systemDefault()).toInstant());
+        booking1.setEndTime(LocalDateTime.of(2025, 9, 10, 9, 0).atZone(ZoneId.systemDefault()).toInstant());
         booking1.setBookingType("JOGO");
         booking1.setStatus("CONFIRMED");
         booking1.setPrimeTime(true);
@@ -61,8 +62,8 @@ public class DataInitializer implements CommandLineRunner {
         Booking booking2 = new Booking();
         booking2.setUser(user2);
         // Horário não nobre
-        booking2.setStartTime(LocalDateTime.of(2025, 9, 10, 11, 0));
-        booking2.setEndTime(LocalDateTime.of(2025, 9, 10, 12, 0));
+        booking2.setStartTime(LocalDateTime.of(2025, 9, 10, 11, 0).atZone(ZoneId.systemDefault()).toInstant());
+        booking2.setEndTime(LocalDateTime.of(2025, 9, 10, 12, 0).atZone(ZoneId.systemDefault()).toInstant());
         booking2.setBookingType("JOGO");
         booking2.setStatus("CONFIRMED");
         booking2.setPrimeTime(false);

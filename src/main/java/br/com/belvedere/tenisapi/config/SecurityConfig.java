@@ -2,10 +2,12 @@ package br.com.belvedere.tenisapi.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.config.http.SessionCreationPolicy;
 
 @Configuration
 @EnableWebSecurity
@@ -18,9 +20,11 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
 
             // 2. Define as regras de autorização para as requisições
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
                 // Permite que qualquer um (permitAll) acesse o endpoint GET /api/bookings
-                .requestMatchers("/api/bookings/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/bookings/**").permitAll() // Permite GET para buscar
+                .requestMatchers(HttpMethod.POST, "/api/bookings").permitAll()  // Permite POST para criar
                 // Exige que qualquer outra requisição (anyRequest) seja autenticada
                 .anyRequest().authenticated()
             )

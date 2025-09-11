@@ -8,4 +8,6 @@
     <include file="db/changelog/scripts/000-create-schema.xml"/>
     <include file="db/changelog/scripts/001-create-initial-tables.xml"/>
     <include file="db/changelog/scripts/002-create-invitations-table.xml"/>
+    <include file="db/changelog/scripts/003-enable-btree-gist-extension.xml"/>
+    <include file="db/changelog/scripts/004-add-booking-exclusion-constraint.xml"/>
 </databaseChangeLog>

@@ -20,7 +20,7 @@
                 <constraints nullable="false" unique="true"/>
             </column>
             <column name="status" type="VARCHAR(50)" defaultValue="PENDING"/>
-            <column name="expires_at" type="TIMESTAMP"/>
+            <column name="expires_at" type="TIMESTAMPTZ"/>
         </createTable>
     </changeSet>
 
