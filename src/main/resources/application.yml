@@ -28,3 +28,18 @@ spring:
       hibernate:
         format_sql: true
         default_schema: belvedere
+
+auth0:
+  audience: https://belvedere.tenis.api
+  #issuer-uri: https://dev-xvezaz1t34nrsh0d.us.auth0.com/ 
+
+app:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # ESTA É A PROPRIEDADE PADRÃO QUE O SPRING PROCURA
+          issuer-uri: "https://dev-xvezaz1t34nrsh0d.us.auth0.com/"
+#    options:
+#      authority: "https://dev-xvezaz1t34nrsh0d.us.auth0.com/"
+#      audience: "https://belvedere.tenis.api"

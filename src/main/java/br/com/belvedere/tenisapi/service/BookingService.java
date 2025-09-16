@@ -1,5 +1,6 @@
 package br.com.belvedere.tenisapi.service;
 
+import br.com.belvedere.tenisapi.dto.BlockBookingRequestDTO;
 import br.com.belvedere.tenisapi.dto.BookingRequestDTO;
 import br.com.belvedere.tenisapi.dto.BookingResponseDTO;
 import br.com.belvedere.tenisapi.dto.UserResponseDTO;
@@ -66,10 +67,10 @@ public class BookingService {
 
 
     @Transactional // Essencial para operações de escrita no banco
-    public BookingResponseDTO createBooking(BookingRequestDTO requestDTO) {
-        // 1. Valida se o usuário existe
-        User user = userRepository.findById(requestDTO.getUserId())
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+    public BookingResponseDTO createBooking(BookingRequestDTO requestDTO, String authProviderId) {
+        // Encontra o usuário pelo ID do Auth0
+        User user = userRepository.findByAuthProviderId(authProviderId)
+            .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
         // 2. REGRA: Verifica se o usuário já possui uma reserva ativa no futuro
         bookingRepository.findFirstFutureBookingByUserId(user.getId(), Instant.now())
@@ -106,5 +107,57 @@ public class BookingService {
         int hour = zonedDateTime.getHour();
         // Manhã (6h, 7h, 8h) ou Noite (18h, 19h, 20h) - horário de São Paulo
         return (hour >= 6 && hour < 9) || (hour >= 18 && hour < 21);
+    }
+
+
+    @Transactional
+    public void cancelBooking(Long bookingId, String authProviderId) {
+
+        User user = userRepository.findByAuthProviderId(authProviderId)
+            .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        
+        // 1. Encontra a reserva
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Reserva com ID " + bookingId + " não encontrada."));
+
+        // 2. Valida a permissão do usuário
+        if (!booking.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("Acesso negado. Você não tem permissão para cancelar esta reserva.");
+        }
+
+        // 3. NOVA REGRA: Verifica se o horário de início da reserva já passou.
+        // Instant.now() é sempre UTC, assim como nosso startTime.
+        if (booking.getStartTime().isBefore(Instant.now())) {
+            throw new RuntimeException("Não é possível cancelar uma reserva que já começou ou está no passado.");
+        }
+
+        // 4. Deleta a reserva
+        bookingRepository.delete(booking);
+    }
+
+    
+    @Transactional
+    public BookingResponseDTO blockCourtForClass(BlockBookingRequestDTO requestDTO, String adminAuthProviderId) {
+        // Valida se o admin existe
+        User adminUser = userRepository.findByAuthProviderId(adminAuthProviderId)
+                .orElseThrow(() -> new RuntimeException("Usuário administrador não encontrado"));
+
+        // Verifica se o horário está vago
+        if (bookingRepository.existsOverlappingBooking(requestDTO.getStartTime(), requestDTO.getEndTime())) {
+            throw new RuntimeException("O período solicitado conflita com uma reserva existente.");
+        }
+
+        // Cria e salva a entidade Booking com o tipo "AULA"
+        Booking newBlock = new Booking();
+        newBlock.setUser(adminUser); // A reserva é "do" admin que a criou
+        newBlock.setStartTime(requestDTO.getStartTime());
+        newBlock.setEndTime(requestDTO.getEndTime());
+        newBlock.setBookingType("AULA");
+        newBlock.setStatus("CONFIRMED");
+        newBlock.setClassDetails(requestDTO.getClassDetails());
+        newBlock.setPrimeTime(isPrimeTime(requestDTO.getStartTime()));
+
+        Booking savedBlock = bookingRepository.save(newBlock);
+        return convertToDto(savedBlock);
     }
 }

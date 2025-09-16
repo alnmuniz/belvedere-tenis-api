@@ -13,3 +13,14 @@ spring:
         default_schema: belvedere
   liquibase:
     drop-first: true
+
+app:
+  security:
+    cors-allowed-origins:
+      - http://localhost:5173
+    public-get-routes:
+      - "/api/bookings/**"
+    public-post-routes:
+    #  - "/api/bookings"
+    public-delete-routes:
+    #  - "/api/bookings/**"

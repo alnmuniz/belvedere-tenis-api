@@ -32,12 +32,19 @@ public class DataInitializer implements CommandLineRunner {
         log.info("Carregando dados de teste...");
 
         // Cria Usuários
+        User admin = new User();
+        admin.setName("Andre Muniz");
+        admin.setEmail("alnmuniz@gmail.com");
+        admin.setApartment("1102");
+        admin.setRole("ROLE_ADMIN");
+        admin.setAuthProviderId("google-oauth2|118232728984586307358");
+
         User user1 = new User();
         user1.setName("Carlos Santana");
         user1.setEmail("carlos@email.com");
         user1.setApartment("101");
         user1.setRole("ROLE_USER");
-        user1.setAuthProviderId("google-12345"); // ID Fictício do Provedor de Auth
+        user1.setAuthProviderId("6mm8DvO7VaVFqJ8Sm5Kc3EUkPPsmIwCt@clients"); // ID Fictício do Provedor de Auth
 
         User user2 = new User();
         user2.setName("Maria Joaquina");
@@ -46,7 +53,7 @@ public class DataInitializer implements CommandLineRunner {
         user2.setRole("ROLE_USER");
         user2.setAuthProviderId("google-67890"); // ID Fictício do Provedor de Auth
 
-        userRepository.saveAll(Arrays.asList(user1, user2));
+        userRepository.saveAll(Arrays.asList(admin, user1, user2));
         log.info("Usuários de teste salvos.");
 
         // Cria Reservas para a data de hoje (10/09/2025)
