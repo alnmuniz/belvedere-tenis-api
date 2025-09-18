@@ -6,8 +6,12 @@ import br.com.belvedere.tenisapi.dto.BookingResponseDTO;
 import br.com.belvedere.tenisapi.dto.UserResponseDTO;
 import br.com.belvedere.tenisapi.entity.Booking;
 import br.com.belvedere.tenisapi.entity.User;
+import br.com.belvedere.tenisapi.enums.BookingStatus;
+import br.com.belvedere.tenisapi.enums.BookingType;
 import br.com.belvedere.tenisapi.repository.BookingRepository;
 import br.com.belvedere.tenisapi.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +26,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class BookingService {
+
+    private static final Logger logger = LoggerFactory.getLogger(BookingService.class);
 
     // Fuso horário do condomínio (São Paulo)
     private static final ZoneId CONDOMINIUM_TIMEZONE = ZoneId.of("America/Sao_Paulo");
@@ -89,8 +95,8 @@ public class BookingService {
         newBooking.setUser(user);
         newBooking.setStartTime(requestDTO.getStartTime());
         newBooking.setEndTime(endTime);
-        newBooking.setBookingType("JOGO");
-        newBooking.setStatus("CONFIRMED");
+        newBooking.setBookingType(BookingType.JOGO);
+        newBooking.setStatus(BookingStatus.CONFIRMED);
         newBooking.setPrimeTime(isPrimeTime(requestDTO.getStartTime())); // Lógica do horário nobre
 
         Booking savedBooking = bookingRepository.save(newBooking);
@@ -152,12 +158,46 @@ public class BookingService {
         newBlock.setUser(adminUser); // A reserva é "do" admin que a criou
         newBlock.setStartTime(requestDTO.getStartTime());
         newBlock.setEndTime(requestDTO.getEndTime());
-        newBlock.setBookingType("AULA");
-        newBlock.setStatus("CONFIRMED");
+        newBlock.setBookingType(BookingType.AULA);
+        newBlock.setStatus(BookingStatus.CONFIRMED);
         newBlock.setClassDetails(requestDTO.getClassDetails());
         newBlock.setPrimeTime(isPrimeTime(requestDTO.getStartTime()));
 
         Booking savedBlock = bookingRepository.save(newBlock);
         return convertToDto(savedBlock);
+    }
+
+    @Transactional
+    public void adminCancelBooking(Long bookingId, String adminAuthProviderId) {
+
+        // Valida se o admin existe
+        User adminUser = userRepository.findByAuthProviderId(adminAuthProviderId)
+                .orElseThrow(() -> new RuntimeException("Usuário administrador não encontrado"));
+
+        // 1. Encontra a reserva pelo ID. Se não existir, lança uma exceção.
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Reserva com ID " + bookingId + " não encontrada."));
+
+        // 2. (Opcional) Poderíamos adicionar lógica aqui, como registrar qual admin cancelou a reserva.
+        // Por enquanto, apenas deletamos.
+
+        // 3. Deleta a reserva. Nenhuma verificação de propriedade é feita.
+        bookingRepository.delete(booking);
+
+        // 4. Registra o log da operação administrativa
+        logger.info("Reserva cancelada administrativamente - ID da reserva: {}, " +
+                "Usuário da reserva: {} (ID: {}), " +
+                "Tipo: {}, Status: {}, " +
+                "Horário: {} às {}, " +
+                "Admin responsável: {} (ID: {})",
+                booking.getId(),
+                booking.getUser().getName(),
+                booking.getUser().getId(),
+                booking.getBookingType().getValue(),
+                booking.getStatus().getValue(),
+                booking.getStartTime(),
+                booking.getEndTime(),
+                adminUser.getName(),
+                adminUser.getId());
     }
 }

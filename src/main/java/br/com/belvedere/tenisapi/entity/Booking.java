@@ -1,5 +1,7 @@
 package br.com.belvedere.tenisapi.entity;
 
+import br.com.belvedere.tenisapi.enums.BookingStatus;
+import br.com.belvedere.tenisapi.enums.BookingType;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.Instant;
@@ -19,9 +21,11 @@ public class Booking {
     @Column(name = "end_time", nullable = false)
     private Instant endTime;
 
-    private String bookingType;
+    @Enumerated(EnumType.STRING)
+    private BookingType bookingType;
 
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private BookingStatus status;
 
     private boolean isPrimeTime;
 

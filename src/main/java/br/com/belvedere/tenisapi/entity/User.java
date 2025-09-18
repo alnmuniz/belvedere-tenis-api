@@ -1,5 +1,6 @@
 package br.com.belvedere.tenisapi.entity;
 
+import br.com.belvedere.tenisapi.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -19,7 +20,8 @@ public class User {
 
     private String apartment;
 
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
 
     @Column(name = "auth_provider_id", nullable = false, unique = true)
     private String authProviderId;
