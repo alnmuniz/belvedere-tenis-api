@@ -19,8 +19,7 @@ import br.com.belvedere.tenisapi.dto.BookingRequestDTO; // Importe o DTO
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 import java.time.LocalDate;
 import java.util.List;
@@ -29,8 +28,7 @@ import java.util.List;
 @RequestMapping("/api/bookings")
 public class BookingController {
 
-    private static final Logger logger = LoggerFactory.getLogger(BookingController.class);
-
+    
     @Autowired
     private BookingService bookingService;
 

@@ -1,5 +1,6 @@
 package br.com.belvedere.tenisapi.service;
 
+import br.com.belvedere.tenisapi.dto.AdminBookingRequestDTO;
 import br.com.belvedere.tenisapi.dto.BlockBookingRequestDTO;
 import br.com.belvedere.tenisapi.dto.BookingRequestDTO;
 import br.com.belvedere.tenisapi.dto.BookingResponseDTO;
@@ -20,6 +21,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -79,10 +81,10 @@ public class BookingService {
             .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
         // 2. REGRA: Verifica se o usuário já possui uma reserva ativa no futuro
-        bookingRepository.findFirstFutureBookingByUserId(user.getId(), Instant.now())
-                .ifPresent(b -> {
-                    throw new RuntimeException("Usuário já possui uma reserva ativa.");
-                });
+        List<Booking> futureBookings = bookingRepository.findFutureBookingsByUserId(user.getId(), Instant.now());
+        if (!futureBookings.isEmpty()) {
+            throw new RuntimeException("Usuário já possui uma reserva ativa.");
+        }
 
         // 3. Define o tempo de fim e verifica se o horário está vago
         Instant endTime = requestDTO.getStartTime().plusSeconds(3600); // 1 hora = 3600 segundos
@@ -199,5 +201,62 @@ public class BookingService {
                 booking.getEndTime(),
                 adminUser.getName(),
                 adminUser.getId());
+    }
+
+    @Transactional
+    public BookingResponseDTO createBookingForUser(AdminBookingRequestDTO requestDTO, String adminAuthProviderId) {
+
+        // Valida se o admin existe
+        User adminUser = userRepository.findByAuthProviderId(adminAuthProviderId)
+                .orElseThrow(() -> new RuntimeException("Usuário administrador não encontrado"));
+
+        // 1. Valida se o morador (alvo da reserva) existe
+        User targetUser = userRepository.findById(requestDTO.getTargetUserId())
+                .orElseThrow(() -> new RuntimeException("Morador com ID " + requestDTO.getTargetUserId() + " não encontrado."));
+
+        // 2. REGRA: Verifica se o morador já possui uma reserva ativa no futuro
+        List<Booking> futureBookings = bookingRepository.findFutureBookingsByUserId(targetUser.getId(), Instant.now());
+        if (!futureBookings.isEmpty()) {
+            throw new RuntimeException("O morador já possui uma reserva ativa.");
+        }
+
+        // 3. Define o tempo de fim e verifica se o horário está vago (usando nossa constraint de concorrência)
+        Instant endTime = requestDTO.getStartTime().plus(1, ChronoUnit.HOURS);
+        if (bookingRepository.existsOverlappingBooking(requestDTO.getStartTime(), endTime)) {
+            throw new RuntimeException("Horário já reservado.");
+        }
+
+        // 4. Cria e salva a entidade Booking, associando ao MORADOR
+        Booking newBooking = new Booking();
+        newBooking.setUser(targetUser); // <<< A reserva é associada ao morador, não ao admin
+        newBooking.setStartTime(requestDTO.getStartTime());
+        newBooking.setEndTime(endTime);
+        newBooking.setBookingType(BookingType.JOGO);
+        newBooking.setStatus(BookingStatus.CONFIRMED);
+        newBooking.setPrimeTime(isPrimeTime(requestDTO.getStartTime()));
+
+        Booking savedBooking = bookingRepository.save(newBooking);
+
+        // 5. Registra o log da operação administrativa
+        logger.info("Reserva criada administrativamente - ID da reserva: {}, " +
+                "Usuário da reserva: {} (ID: {}, Apartamento: {}), " +
+                "Tipo: {}, Status: {}, " +
+                "Horário: {} às {}, " +
+                "Horário nobre: {}, " +
+                "Admin responsável: {} (ID: {})",
+                savedBooking.getId(),
+                targetUser.getName(),
+                targetUser.getId(),
+                targetUser.getApartment(),
+                savedBooking.getBookingType().getValue(),
+                savedBooking.getStatus().getValue(),
+                savedBooking.getStartTime(),
+                savedBooking.getEndTime(),
+                savedBooking.isPrimeTime() ? "Sim" : "Não",
+                adminUser.getName(),
+                adminUser.getId());
+
+        // 6. Converte a entidade salva para DTO e retorna
+        return convertToDto(savedBooking);
     }
 }

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.belvedere.tenisapi.dto.AdminBookingRequestDTO;
 import br.com.belvedere.tenisapi.dto.BlockBookingRequestDTO;
 import br.com.belvedere.tenisapi.dto.BookingResponseDTO;
 import br.com.belvedere.tenisapi.service.BookingService;
@@ -39,5 +40,13 @@ public class AdminBookingController {
         bookingService.adminCancelBooking(bookingId, adminAuthProviderId);
         // Retorna 204 No Content, indicando sucesso na deleção.
         return ResponseEntity.noContent().build();
+    }
+
+    
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public BookingResponseDTO createBookingForUser(@Valid @RequestBody AdminBookingRequestDTO requestDTO, Authentication authentication) {
+        String adminAuthProviderId = authentication.getName();
+        return bookingService.createBookingForUser(requestDTO, adminAuthProviderId);
     }
 }

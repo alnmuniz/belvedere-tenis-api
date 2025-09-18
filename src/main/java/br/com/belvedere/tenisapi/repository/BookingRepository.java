@@ -18,7 +18,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findBookingsForDay(Instant startOfDay, Instant endOfDay);
 
     @Query("SELECT b FROM Booking b WHERE b.user.id = :userId AND b.startTime > :currentTime")
-    Optional<Booking> findFirstFutureBookingByUserId(Long userId, Instant currentTime);
+    List<Booking> findFutureBookingsByUserId(Long userId, Instant currentTime);
 
     @Query("SELECT COUNT(b) > 0 FROM Booking b WHERE b.startTime < :endTime AND b.endTime > :startTime")
     boolean existsOverlappingBooking(Instant startTime, Instant endTime);
