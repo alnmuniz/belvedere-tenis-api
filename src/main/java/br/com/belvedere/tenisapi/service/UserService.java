@@ -2,18 +2,23 @@ package br.com.belvedere.tenisapi.service;
 
 import br.com.belvedere.tenisapi.dto.UserDTO;
 import br.com.belvedere.tenisapi.entity.User;
+import br.com.belvedere.tenisapi.entity.Booking;
 import br.com.belvedere.tenisapi.enums.UserRole;
+import br.com.belvedere.tenisapi.enums.UserStatus;
 import br.com.belvedere.tenisapi.repository.UserRepository;
+import br.com.belvedere.tenisapi.repository.BookingRepository;
 import br.com.belvedere.tenisapi.dto.UserRegistrationRequestDTO;
 import br.com.belvedere.tenisapi.entity.Invitation;
 import br.com.belvedere.tenisapi.enums.InvitationStatus;
-import br.com.belvedere.tenisapi.service.InvitationService; 
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Instant;
+import java.util.List;
 
 @Service
 public class UserService {
@@ -22,6 +27,9 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private BookingRepository bookingRepository;
 
     @Autowired
     private InvitationService invitationService; 
@@ -69,6 +77,27 @@ public class UserService {
         return dto;
     }
 
+    // Método privado para remover reservas futuras de um usuário
+    private int removeFutureBookingsForUser(Long userId, User adminUser) {
+        List<Booking> futureBookings = bookingRepository.findFutureBookingsByUserId(userId, Instant.now());
+        int removedBookingsCount = futureBookings.size();
+        
+        if (!futureBookings.isEmpty()) {
+            bookingRepository.deleteAll(futureBookings);
+            logger.info("Reservas futuras removidas automaticamente - " +
+                    "Usuário: {} (ID: {}), " +
+                    "Quantidade de reservas removidas: {}, " +
+                    "Admin responsável: {} (ID: {})",
+                    adminUser.getName(),
+                    userId,
+                    removedBookingsCount,
+                    adminUser.getName(),
+                    adminUser.getId());
+        }
+        
+        return removedBookingsCount;
+    }
+
     @Transactional
     public UserDTO registerNewUser(UserRegistrationRequestDTO requestDTO) {
         // 1. Valida o token e busca o convite
@@ -107,6 +136,71 @@ public class UserService {
         );
 
         return convertToUserDTO(savedUser);
+    }
+
+    @Transactional
+    public UserDTO blockUser(Long userId, String adminAuthProviderId) {
+        // Valida se o admin existe
+        User adminUser = userRepository.findByAuthProviderId(adminAuthProviderId)
+                .orElseThrow(() -> new RuntimeException("Usuário administrador não encontrado"));
+
+        // 1. Encontra o usuário no banco
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuário com ID " + userId + " não encontrado."));
+
+        // 2. Remove todas as reservas futuras do usuário
+        int removedBookingsCount = removeFutureBookingsForUser(userId, adminUser);
+
+        // 3. Altera o status para INACTIVE
+        user.setStatus(UserStatus.INACTIVE);
+
+        // 4. Salva a alteração
+        User updatedUser = userRepository.save(user);
+
+        // 5. Registra o log da operação administrativa
+        logger.info("Usuário bloqueado - " +
+        "Usuário bloqueado: {} (ID: {}, Apartamento: {}), " +
+        "Reservas futuras removidas: {}, " +
+        "Admin responsável: {} (ID: {})",
+        user.getName(),
+        user.getId(),
+        user.getApartment(),
+        removedBookingsCount,
+        adminUser.getName(),
+        adminUser.getId());
+
+        // 6. Converte para DTO e retorna
+        return convertToUserDTO(updatedUser);
+    }
+
+    @Transactional
+    public UserDTO unblockUser(Long userId, String adminAuthProviderId) {
+        // Valida se o admin existe
+        User adminUser = userRepository.findByAuthProviderId(adminAuthProviderId)
+                .orElseThrow(() -> new RuntimeException("Usuário administrador não encontrado"));
+
+        // 1. Encontra o usuário no banco
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuário com ID " + userId + " não encontrado."));
+
+        // 2. Altera o status para ACTIVE
+        user.setStatus(UserStatus.ACTIVE);
+
+        // 3. Salva a alteração
+        User updatedUser = userRepository.save(user);
+
+        // 4. Registra o log da operação administrativa
+        logger.info("Usuário desbloqueado - " +
+        "Usuário desbloqueado: {} (ID: {}, Apartamento: {}), " +
+        "Admin responsável: {} (ID: {})",
+        user.getName(),
+        user.getId(),
+        user.getApartment(),
+        adminUser.getName(),
+        adminUser.getId());
+
+        // 5. Converte para DTO e retorna
+        return convertToUserDTO(updatedUser);
     }
 
 }

@@ -36,4 +36,18 @@ public class AdminUserController {
         String adminAuthProviderId = authentication.getName();
         invitationService.createAndSendInvitation(requestDTO.getEmail(), requestDTO.getApartment(), adminAuthProviderId);
     }
+
+    @PostMapping("/{id}/block")
+    public ResponseEntity<UserDTO> blockUser(@PathVariable("id") Long userId, Authentication authentication) {
+        String adminAuthProviderId = authentication.getName();
+        UserDTO updatedUser = userService.blockUser(userId, adminAuthProviderId);
+        return ResponseEntity.ok(updatedUser);
+    }
+
+    @PostMapping("/{id}/unblock")
+    public ResponseEntity<UserDTO> unblockUser(@PathVariable("id") Long userId, Authentication authentication) {
+        String adminAuthProviderId = authentication.getName();
+        UserDTO updatedUser = userService.unblockUser(userId, adminAuthProviderId);
+        return ResponseEntity.ok(updatedUser);
+    }
 }

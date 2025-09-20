@@ -1,6 +1,7 @@
 package br.com.belvedere.tenisapi.entity;
 
 import br.com.belvedere.tenisapi.enums.UserRole;
+import br.com.belvedere.tenisapi.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -25,4 +26,8 @@ public class User {
 
     @Column(name = "auth_provider_id", nullable = false, unique = true)
     private String authProviderId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private UserStatus status = UserStatus.ACTIVE;
 }

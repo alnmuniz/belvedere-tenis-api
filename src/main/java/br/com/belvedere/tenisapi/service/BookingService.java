@@ -9,6 +9,7 @@ import br.com.belvedere.tenisapi.entity.Booking;
 import br.com.belvedere.tenisapi.entity.User;
 import br.com.belvedere.tenisapi.enums.BookingStatus;
 import br.com.belvedere.tenisapi.enums.BookingType;
+import br.com.belvedere.tenisapi.enums.UserStatus;
 import br.com.belvedere.tenisapi.repository.BookingRepository;
 import br.com.belvedere.tenisapi.repository.UserRepository;
 import org.slf4j.Logger;
@@ -79,6 +80,10 @@ public class BookingService {
         // Encontra o usuário pelo ID do Auth0
         User user = userRepository.findByAuthProviderId(authProviderId)
             .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        if (user.getStatus() == UserStatus.INACTIVE) {
+            throw new RuntimeException("Usuário inativo. Não é possível criar reservas.");
+        }
 
         // 2. REGRA: Verifica se o usuário já possui uma reserva ativa no futuro
         List<Booking> futureBookings = bookingRepository.findFutureBookingsByUserId(user.getId(), Instant.now());
