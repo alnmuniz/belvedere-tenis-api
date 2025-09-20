@@ -13,6 +13,7 @@ import br.com.belvedere.tenisapi.enums.InvitationStatus;
 import br.com.belvedere.tenisapi.enums.UserRole;
 import br.com.belvedere.tenisapi.repository.InvitationRepository;
 import br.com.belvedere.tenisapi.repository.UserRepository;
+import br.com.belvedere.tenisapi.dto.InvitationDetailsDTO; // Importe o DTO
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -157,5 +158,33 @@ public class InvitationService {
         } catch (IOException e) {
             throw new RuntimeException("Erro ao carregar template de e-mail", e);
         }
+    }
+
+    
+
+    @Transactional(readOnly = true)
+    public InvitationDetailsDTO validateToken(String token) {
+        Invitation invitation = findValidInvitationByToken(token);
+        return new InvitationDetailsDTO(invitation.getEmail(), invitation.getApartment());
+    }
+
+    // Método auxiliar que será reutilizado no cadastro
+    public Invitation findValidInvitationByToken(String token) {
+        Invitation invitation = invitationRepository.findByToken(token)
+                .orElseThrow(() -> new RuntimeException("Convite inválido ou não encontrado."));
+
+        if (invitation.getStatus() != InvitationStatus.PENDING) {
+            throw new RuntimeException("Este convite já foi utilizado.");
+        }
+
+        if (invitation.getExpiresAt().isBefore(Instant.now())) {
+            throw new RuntimeException("Este convite expirou.");
+        }
+        return invitation;
+    }
+
+    public void markInvitationAsAccepted(Invitation invitation) {
+        invitation.setStatus(InvitationStatus.ACCEPTED);
+        invitationRepository.save(invitation);
     }
 }

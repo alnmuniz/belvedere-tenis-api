@@ -43,3 +43,7 @@ app:
 #    options:
 #      authority: "https://dev-xvezaz1t34nrsh0d.us.auth0.com/"
 #      audience: "https://belvedere.tenis.api"
+    public-get-routes:
+    - "/api/public/invitations/**"
+    public-post-routes:
+    - "/api/public/register"
