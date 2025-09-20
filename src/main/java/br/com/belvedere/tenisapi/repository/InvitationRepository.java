@@ -1,6 +1,7 @@
 package br.com.belvedere.tenisapi.repository;
 
 import br.com.belvedere.tenisapi.entity.Invitation;
+import br.com.belvedere.tenisapi.enums.InvitationStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -32,7 +33,7 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long> {
      * @param status o status do convite
      * @return lista de convites com o status especificado
      */
-    List<Invitation> findByStatus(String status);
+    List<Invitation> findByStatus(InvitationStatus status);
 
     /**
      * Busca convites por apartamento
@@ -72,7 +73,7 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long> {
      * @param status o status do convite
      * @return lista de convites para o email com o status especificado
      */
-    List<Invitation> findByEmailAndStatus(String email, String status);
+    List<Invitation> findByEmailAndStatus(String email, InvitationStatus status);
 
     /**
      * Busca convites por apartamento e status
@@ -80,5 +81,5 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long> {
      * @param status o status do convite
      * @return lista de convites para o apartamento com o status especificado
      */
-    List<Invitation> findByApartmentAndStatus(String apartment, String status);
+    List<Invitation> findByApartmentAndStatus(String apartment, InvitationStatus status);
 }

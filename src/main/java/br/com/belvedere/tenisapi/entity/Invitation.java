@@ -1,5 +1,6 @@
 package br.com.belvedere.tenisapi.entity;
 
+import br.com.belvedere.tenisapi.enums.InvitationStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.Instant;
@@ -22,7 +23,9 @@ public class Invitation {
     @Column(nullable = false, unique = true)
     private String token;
 
-    private String status;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private InvitationStatus status;
 
     @Column(name = "expires_at")
     private Instant expiresAt;
