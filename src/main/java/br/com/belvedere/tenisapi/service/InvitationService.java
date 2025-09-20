@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.core.io.ClassPathResource;
 
@@ -58,10 +59,13 @@ public class InvitationService {
             throw new RuntimeException("Acesso negado. Apenas administradores podem enviar convites.");
         }
 
-        // 2. Gera um token único e seguro
+        // 2. Verifica se existem convites PENDING para este email e os marca como EXPIRED
+        expirePendingInvitationsForEmail(email);
+
+        // 3. Gera um token único e seguro
         String token = UUID.randomUUID().toString();
 
-        // 3. Cria e salva a entidade de convite no banco
+        // 4. Cria e salva a entidade de convite no banco
         Invitation invitation = new Invitation();
         invitation.setEmail(email);
         invitation.setApartment(apartment);
@@ -70,10 +74,10 @@ public class InvitationService {
         invitation.setExpiresAt(Instant.now().plus(7, ChronoUnit.DAYS)); // Convite válido por 7 dias
         Invitation savedInvitation = invitationRepository.save(invitation);
 
-        // 4. Envia o e-mail
+        // 5. Envia o e-mail
         sendInvitationEmail(email, token);
 
-        // 5. Registra o log de auditoria
+        // 6. Registra o log de auditoria
         logger.info("Convite enviado - ID do convite: {}, " +
                 "Email convidado: {}, " +
                 "Apartamento: {}, " +
@@ -90,6 +94,28 @@ public class InvitationService {
                 adminUser.getName(),
                 adminUser.getId(),
                 adminUser.getApartment());
+    }
+
+    /**
+     * Verifica se existem convites PENDING para o email especificado e os marca como EXPIRED.
+     * Garante que apenas um convite PENDING possa existir por email.
+     * 
+     * @param email o email para verificar convites PENDING
+     */
+    private void expirePendingInvitationsForEmail(String email) {
+        List<Invitation> pendingInvitations = invitationRepository.findByEmailAndStatus(email, InvitationStatus.PENDING);
+        if (!pendingInvitations.isEmpty()) {
+            logger.info("Encontrados {} convite(s) PENDING para o email {}. Marcando como EXPIRED.", 
+                       pendingInvitations.size(), email);
+            
+            for (Invitation pendingInvitation : pendingInvitations) {
+                pendingInvitation.setStatus(InvitationStatus.EXPIRED);
+                invitationRepository.save(pendingInvitation);
+                
+                logger.info("Convite PENDING marcado como EXPIRED - ID: {}, Token: {}", 
+                           pendingInvitation.getId(), pendingInvitation.getToken());
+            }
+        }
     }
 
     private void sendInvitationEmail(String toEmail, String token) {
