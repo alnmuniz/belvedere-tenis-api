@@ -1,0 +1,39 @@
+[1mdiff --git a/src/main/java/br/com/belvedere/tenisapi/controller/AdminUserController.java b/src/main/java/br/com/belvedere/tenisapi/controller/AdminUserController.java[m
+[1mindex 8d0176b..e80df48 100644[m
+[1m--- a/src/main/java/br/com/belvedere/tenisapi/controller/AdminUserController.java[m
+[1m+++ b/src/main/java/br/com/belvedere/tenisapi/controller/AdminUserController.java[m
+[36m@@ -1,9 +1,13 @@[m
+ package br.com.belvedere.tenisapi.controller;[m
+ [m
+ import br.com.belvedere.tenisapi.dto.UserDTO;[m
+[32m+[m[32mimport br.com.belvedere.tenisapi.service.InvitationService;[m
+ import br.com.belvedere.tenisapi.service.UserService;[m
+ import org.springframework.beans.factory.annotation.Autowired;[m
+ import org.springframework.http.ResponseEntity;[m
+[32m+[m[32mimport org.springframework.http.HttpStatus;[m
+[32m+[m[32mimport jakarta.validation.Valid;[m
+[32m+[m[32mimport br.com.belvedere.tenisapi.dto.InvitationRequestDTO;[m
+ import org.springframework.security.access.prepost.PreAuthorize;[m
+ import org.springframework.security.core.Authentication;[m
+ import org.springframework.web.bind.annotation.*;[m
+[36m@@ -16,10 +20,19 @@[m [mpublic class AdminUserController {[m
+     @Autowired[m
+     private UserService userService;[m
+ [m
+[32m+[m[32m    @Autowired[m
+[32m+[m[32m    private InvitationService invitationService;[m
+[32m+[m[41m    [m
+     @PostMapping("/{id}/promote")[m
+     public ResponseEntity<UserDTO> promoteUser(@PathVariable("id") Long userId, Authentication authentication) {[m
+         String adminAuthProviderId = authentication.getName();[m
+         UserDTO updatedUser = userService.promoteUserToAdmin(userId,adminAuthProviderId);[m
+         return ResponseEntity.ok(updatedUser);[m
+     }[m
+[32m+[m
+[32m+[m[32m    @PostMapping("/invitations")[m
+[32m+[m[32m    @ResponseStatus(HttpStatus.NO_CONTENT) // 204, pois não há conteúdo a retornar[m
+[32m+[m[32m    public void sendInvitation(@Valid @RequestBody InvitationRequestDTO requestDTO) {[m
+[32m+[m[32m        invitationService.createAndSendInvitation(requestDTO.getEmail(), requestDTO.getApartment());[m
+[32m+[m[32m    }[m
+ }[m
+\ No newline at end of file[m

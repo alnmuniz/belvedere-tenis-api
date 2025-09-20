@@ -24,3 +24,7 @@ app:
     #  - "/api/bookings"
     public-delete-routes:
     #  - "/api/bookings/**"
+  
+  # Configuração do Frontend
+  frontend:
+    url: "http://localhost:5173"

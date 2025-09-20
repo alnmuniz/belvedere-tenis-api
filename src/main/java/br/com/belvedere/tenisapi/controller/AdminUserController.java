@@ -1,9 +1,13 @@
 package br.com.belvedere.tenisapi.controller;
 
 import br.com.belvedere.tenisapi.dto.UserDTO;
+import br.com.belvedere.tenisapi.service.InvitationService;
 import br.com.belvedere.tenisapi.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import jakarta.validation.Valid;
+import br.com.belvedere.tenisapi.dto.InvitationRequestDTO;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -16,10 +20,19 @@ public class AdminUserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private InvitationService invitationService;
+    
     @PostMapping("/{id}/promote")
     public ResponseEntity<UserDTO> promoteUser(@PathVariable("id") Long userId, Authentication authentication) {
         String adminAuthProviderId = authentication.getName();
         UserDTO updatedUser = userService.promoteUserToAdmin(userId,adminAuthProviderId);
         return ResponseEntity.ok(updatedUser);
+    }
+
+    @PostMapping("/invitations")
+    @ResponseStatus(HttpStatus.NO_CONTENT) // 204, pois não há conteúdo a retornar
+    public void sendInvitation(@Valid @RequestBody InvitationRequestDTO requestDTO) {
+        invitationService.createAndSendInvitation(requestDTO.getEmail(), requestDTO.getApartment());
     }
 }
