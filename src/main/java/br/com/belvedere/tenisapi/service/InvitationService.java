@@ -8,8 +8,13 @@ import com.sendgrid.helpers.mail.Mail;
 import com.sendgrid.helpers.mail.objects.Content;
 import com.sendgrid.helpers.mail.objects.Email;
 import br.com.belvedere.tenisapi.entity.Invitation;
-import br.com.belvedere.tenisapi.enums.InvitationStatus; // Crie este Enum!
+import br.com.belvedere.tenisapi.entity.User;
+import br.com.belvedere.tenisapi.enums.InvitationStatus;
+import br.com.belvedere.tenisapi.enums.UserRole;
 import br.com.belvedere.tenisapi.repository.InvitationRepository;
+import br.com.belvedere.tenisapi.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -26,8 +31,13 @@ import org.springframework.core.io.ClassPathResource;
 @Service
 public class InvitationService {
 
+    private static final Logger logger = LoggerFactory.getLogger(InvitationService.class);
+
     @Autowired
     private InvitationRepository invitationRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Value("${sendgrid.api-key}")
     private String sendGridApiKey;
@@ -39,21 +49,47 @@ public class InvitationService {
     private String frontendUrl;
 
     @Transactional
-    public void createAndSendInvitation(String email, String apartment) {
-        // 1. Gera um token único e seguro
+    public void createAndSendInvitation(String email, String apartment, String adminAuthProviderId) {
+        // 1. Valida se o admin existe e tem permissão
+        User adminUser = userRepository.findByAuthProviderId(adminAuthProviderId)
+                .orElseThrow(() -> new RuntimeException("Usuário administrador não encontrado"));
+
+        if (adminUser.getRole() != UserRole.ADMIN) {
+            throw new RuntimeException("Acesso negado. Apenas administradores podem enviar convites.");
+        }
+
+        // 2. Gera um token único e seguro
         String token = UUID.randomUUID().toString();
 
-        // 2. Cria e salva a entidade de convite no banco
+        // 3. Cria e salva a entidade de convite no banco
         Invitation invitation = new Invitation();
         invitation.setEmail(email);
         invitation.setApartment(apartment);
         invitation.setToken(token);
         invitation.setStatus(InvitationStatus.PENDING);
         invitation.setExpiresAt(Instant.now().plus(7, ChronoUnit.DAYS)); // Convite válido por 7 dias
-        invitationRepository.save(invitation);
+        Invitation savedInvitation = invitationRepository.save(invitation);
 
-        // 3. Envia o e-mail
+        // 4. Envia o e-mail
         sendInvitationEmail(email, token);
+
+        // 5. Registra o log de auditoria
+        logger.info("Convite enviado - ID do convite: {}, " +
+                "Email convidado: {}, " +
+                "Apartamento: {}, " +
+                "Status: {}, " +
+                "Token: {}, " +
+                "Expira em: {}, " +
+                "Admin responsável: {} (ID: {}, Apartamento: {})",
+                savedInvitation.getId(),
+                email,
+                apartment,
+                InvitationStatus.PENDING.getValue(),
+                token,
+                savedInvitation.getExpiresAt(),
+                adminUser.getName(),
+                adminUser.getId(),
+                adminUser.getApartment());
     }
 
     private void sendInvitationEmail(String toEmail, String token) {

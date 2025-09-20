@@ -32,7 +32,8 @@ public class AdminUserController {
 
     @PostMapping("/invitations")
     @ResponseStatus(HttpStatus.NO_CONTENT) // 204, pois não há conteúdo a retornar
-    public void sendInvitation(@Valid @RequestBody InvitationRequestDTO requestDTO) {
-        invitationService.createAndSendInvitation(requestDTO.getEmail(), requestDTO.getApartment());
+    public void sendInvitation(@Valid @RequestBody InvitationRequestDTO requestDTO, Authentication authentication) {
+        String adminAuthProviderId = authentication.getName();
+        invitationService.createAndSendInvitation(requestDTO.getEmail(), requestDTO.getApartment(), adminAuthProviderId);
     }
 }
