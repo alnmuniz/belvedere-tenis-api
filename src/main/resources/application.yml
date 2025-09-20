@@ -2,7 +2,7 @@ spring:
   application:
     name: tenis-api
   profiles:
-    active: dev
+    active: dev,secret
     
   # Configuração do Banco de Dados (PostgreSQL no Docker)
   datasource:

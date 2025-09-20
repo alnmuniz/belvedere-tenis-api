@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Configurações sensíveis ###
+# Arquivo de configuração com dados sensíveis - NÃO COMMITAR
+src/main/resources/application-secret.yml
