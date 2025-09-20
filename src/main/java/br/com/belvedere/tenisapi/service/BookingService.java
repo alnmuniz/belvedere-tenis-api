@@ -9,6 +9,7 @@ import br.com.belvedere.tenisapi.entity.Booking;
 import br.com.belvedere.tenisapi.entity.User;
 import br.com.belvedere.tenisapi.enums.BookingStatus;
 import br.com.belvedere.tenisapi.enums.BookingType;
+import br.com.belvedere.tenisapi.enums.UserRole;
 import br.com.belvedere.tenisapi.enums.UserStatus;
 import br.com.belvedere.tenisapi.repository.BookingRepository;
 import br.com.belvedere.tenisapi.repository.UserRepository;
@@ -85,10 +86,13 @@ public class BookingService {
             throw new RuntimeException("Usuário inativo. Não é possível criar reservas.");
         }
 
-        // 2. REGRA: Verifica se o usuário já possui uma reserva ativa no futuro
-        List<Booking> futureBookings = bookingRepository.findFutureBookingsByUserId(user.getId(), Instant.now());
+        // 2. REGRA: Verifica se o apartamento já possui uma reserva ativa no futuro
+        // Pega o apartamento do usuário que está fazendo a reserva
+        String apartment = user.getApartment();
+        // Verifica se o APARTAMENTO já tem uma reserva futura
+        List<Booking> futureBookings = bookingRepository.findFutureBookingsByApartment(apartment, Instant.now());
         if (!futureBookings.isEmpty()) {
-            throw new RuntimeException("Usuário já possui uma reserva ativa.");
+            throw new RuntimeException("Este apartamento já possui uma reserva ativa.");
         }
 
         // 3. Define o tempo de fim e verifica se o horário está vago
@@ -154,6 +158,10 @@ public class BookingService {
         // Valida se o admin existe
         User adminUser = userRepository.findByAuthProviderId(adminAuthProviderId)
                 .orElseThrow(() -> new RuntimeException("Usuário administrador não encontrado"));
+        
+        if (adminUser.getRole() != UserRole.ADMIN) {
+            throw new RuntimeException("Acesso negado. Apenas administradores podem bloquear a quadra para aulas.");
+        }
 
         // Verifica se o horário está vago
         if (bookingRepository.existsOverlappingBooking(requestDTO.getStartTime(), requestDTO.getEndTime())) {
@@ -219,10 +227,13 @@ public class BookingService {
         User targetUser = userRepository.findById(requestDTO.getTargetUserId())
                 .orElseThrow(() -> new RuntimeException("Morador com ID " + requestDTO.getTargetUserId() + " não encontrado."));
 
-        // 2. REGRA: Verifica se o morador já possui uma reserva ativa no futuro
-        List<Booking> futureBookings = bookingRepository.findFutureBookingsByUserId(targetUser.getId(), Instant.now());
+        // 2. REGRA: Verifica se o apartamento já possui uma reserva ativa no futuro
+        // Pega o apartamento do usuário ALVO da reserva
+        String apartment = targetUser.getApartment();
+        // Verifica se o APARTAMENTO já tem uma reserva futura
+        List<Booking> futureBookings = bookingRepository.findFutureBookingsByApartment(apartment, Instant.now());
         if (!futureBookings.isEmpty()) {
-            throw new RuntimeException("O morador já possui uma reserva ativa.");
+            throw new RuntimeException("O apartamento deste morador já possui uma reserva ativa.");
         }
 
         // 3. Define o tempo de fim e verifica se o horário está vago (usando nossa constraint de concorrência)

@@ -22,4 +22,8 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query("SELECT COUNT(b) > 0 FROM Booking b WHERE b.startTime < :endTime AND b.endTime > :startTime")
     boolean existsOverlappingBooking(Instant startTime, Instant endTime);
 
+    @Query("SELECT b FROM Booking b JOIN b.user u WHERE u.apartment = :apartment AND b.startTime > :currentTime")
+    List<Booking> findFutureBookingsByApartment(String apartment, Instant currentTime);
+
+
 }
