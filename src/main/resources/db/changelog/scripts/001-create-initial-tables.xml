@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+
+    <changeSet id="1" author="alnmuniz">
+        <createTable tableName="users" schemaName="belvedere">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="email" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="apartment" type="VARCHAR(10)"/>
+            <column name="role" type="VARCHAR(50)"/>
+            <column name="auth_provider_id" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="bookings" schemaName="belvedere">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="start_time" type="TIMESTAMPTZ">
+                <constraints nullable="false"/>
+            </column>
+            <column name="end_time" type="TIMESTAMPTZ">
+                <constraints nullable="false"/>
+            </column>
+            <column name="booking_type" type="VARCHAR(50)"/>
+            <column name="status" type="VARCHAR(50)"/>
+            <column name="is_prime_time" type="BOOLEAN" defaultValueBoolean="false"/>
+            <column name="class_details" type="VARCHAR(255)"/>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_bookings_users" references="users(id)"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>
