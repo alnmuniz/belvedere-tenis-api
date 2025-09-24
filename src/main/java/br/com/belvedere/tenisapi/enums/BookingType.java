@@ -4,8 +4,8 @@ package br.com.belvedere.tenisapi.enums;
  * Enum que representa os tipos de reserva disponíveis
  */
 public enum BookingType {
-    JOGO("JOGO"),
-    AULA("AULA");
+    RESERVA("RESERVA"),
+    TURMA_COLETIVA("TURMA COLETIVA");
     
     private final String value;
     

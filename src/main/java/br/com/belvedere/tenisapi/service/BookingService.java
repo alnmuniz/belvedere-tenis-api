@@ -27,6 +27,7 @@ import java.time.temporal.ChronoUnit;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Optional; // Importe o Optional
 
 @Service
 public class BookingService {
@@ -106,7 +107,7 @@ public class BookingService {
         newBooking.setUser(user);
         newBooking.setStartTime(requestDTO.getStartTime());
         newBooking.setEndTime(endTime);
-        newBooking.setBookingType(BookingType.JOGO);
+        newBooking.setBookingType(BookingType.RESERVA);
         newBooking.setStatus(BookingStatus.CONFIRMED);
         newBooking.setPrimeTime(isPrimeTime(requestDTO.getStartTime())); // Lógica do horário nobre
 
@@ -168,12 +169,12 @@ public class BookingService {
             throw new RuntimeException("O período solicitado conflita com uma reserva existente.");
         }
 
-        // Cria e salva a entidade Booking com o tipo "AULA"
+        // Cria e salva a entidade Booking com o tipo "TURMA COLETIVA"
         Booking newBlock = new Booking();
         newBlock.setUser(adminUser); // A reserva é "do" admin que a criou
         newBlock.setStartTime(requestDTO.getStartTime());
         newBlock.setEndTime(requestDTO.getEndTime());
-        newBlock.setBookingType(BookingType.AULA);
+        newBlock.setBookingType(BookingType.TURMA_COLETIVA);
         newBlock.setStatus(BookingStatus.CONFIRMED);
         newBlock.setClassDetails(requestDTO.getClassDetails());
         newBlock.setPrimeTime(isPrimeTime(requestDTO.getStartTime()));
@@ -247,7 +248,7 @@ public class BookingService {
         newBooking.setUser(targetUser); // <<< A reserva é associada ao morador, não ao admin
         newBooking.setStartTime(requestDTO.getStartTime());
         newBooking.setEndTime(endTime);
-        newBooking.setBookingType(BookingType.JOGO);
+        newBooking.setBookingType(BookingType.RESERVA);
         newBooking.setStatus(BookingStatus.CONFIRMED);
         newBooking.setPrimeTime(isPrimeTime(requestDTO.getStartTime()));
 
@@ -274,5 +275,19 @@ public class BookingService {
 
         // 6. Converte a entidade salva para DTO e retorna
         return convertToDto(savedBooking);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<BookingResponseDTO> findMyFutureBooking(String authProviderId) {
+        User user = userRepository.findByAuthProviderId(authProviderId)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        List<Booking> futureBookings = bookingRepository
+                .findFutureBookingsByApartment(user.getApartment(), Instant.now());
+
+        // Retorna a primeira reserva encontrada (ou um Optional vazio se não houver nenhuma)
+        return futureBookings.stream()
+                .findFirst()
+                .map(this::convertToDto);
     }
 }

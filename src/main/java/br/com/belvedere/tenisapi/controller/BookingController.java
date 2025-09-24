@@ -58,4 +58,12 @@ public class BookingController {
         // Retorna 204 No Content, o status padrão para um DELETE bem-sucedido.
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/my-booking")
+    public ResponseEntity<BookingResponseDTO> getMyBooking(Authentication authentication) {
+        String authProviderId = authentication.getName();
+        return bookingService.findMyFutureBooking(authProviderId)
+                .map(ResponseEntity::ok) // Se encontrar, retorna 200 OK com a reserva
+                .orElse(ResponseEntity.noContent().build()); // Se não, retorna 204 No Content
+    }
 }

@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -66,6 +67,36 @@ public class UserService {
         return convertToUserDTO(updatedUser);
     }
 
+    @Transactional
+    public UserDTO demoteUserToUser(Long userId, String adminAuthProviderId) {
+        // Valida se o admin existe
+        User adminUser = userRepository.findByAuthProviderId(adminAuthProviderId)
+                .orElseThrow(() -> new RuntimeException("Usuário administrador não encontrado"));
+
+        // 1. Encontra o usuário no banco
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuário com ID " + userId + " não encontrado."));
+
+        // 2. Altera o papel (role) para USER
+        user.setRole(UserRole.USER);
+
+        // 3. Salva a alteração
+        User updatedUser = userRepository.save(user);
+
+        // 4. Registra o log da operação administrativa
+        logger.info("Usuário com perfil alterado para usuário comum - " +
+        "Usuário alterado: {} (ID: {}, Apartamento: {}), " +
+        "Admin responsável: {} (ID: {})",
+        user.getName(),
+        user.getId(),
+        user.getApartment(),
+        adminUser.getName(),
+        adminUser.getId());
+
+        // 5. Converte para DTO e retorna 
+        return convertToUserDTO(updatedUser);
+    }
+
     // Método auxiliar para conversão
     private UserDTO convertToUserDTO(User user) {
         UserDTO dto = new UserDTO();
@@ -74,6 +105,8 @@ public class UserService {
         dto.setEmail(user.getEmail());
         dto.setApartment(user.getApartment());
         dto.setRole(user.getRole());
+        dto.setStatus(user.getStatus());
+        dto.setAuthProviderId(user.getAuthProviderId());
         return dto;
     }
 
@@ -201,6 +234,17 @@ public class UserService {
 
         // 5. Converte para DTO e retorna
         return convertToUserDTO(updatedUser);
+    }
+
+    /**
+     * Método para buscar todos os usuários
+     * @return Lista de usuários
+     */
+    @Transactional(readOnly = true)
+    public List<UserDTO> findAllUsers() {
+        return userRepository.findAllOrdered().stream()
+                .map(this::convertToUserDTO)
+                .collect(Collectors.toList());
     }
 
 }

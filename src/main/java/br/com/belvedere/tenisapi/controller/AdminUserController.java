@@ -11,6 +11,7 @@ import br.com.belvedere.tenisapi.dto.InvitationRequestDTO;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin/users")
@@ -27,6 +28,13 @@ public class AdminUserController {
     public ResponseEntity<UserDTO> promoteUser(@PathVariable("id") Long userId, Authentication authentication) {
         String adminAuthProviderId = authentication.getName();
         UserDTO updatedUser = userService.promoteUserToAdmin(userId,adminAuthProviderId);
+        return ResponseEntity.ok(updatedUser);
+    }
+    
+    @PostMapping("/{id}/demote")
+    public ResponseEntity<UserDTO> demoteUser(@PathVariable("id") Long userId, Authentication authentication) {
+        String adminAuthProviderId = authentication.getName();
+        UserDTO updatedUser = userService.demoteUserToUser(userId, adminAuthProviderId);
         return ResponseEntity.ok(updatedUser);
     }
 
@@ -49,5 +57,15 @@ public class AdminUserController {
         String adminAuthProviderId = authentication.getName();
         UserDTO updatedUser = userService.unblockUser(userId, adminAuthProviderId);
         return ResponseEntity.ok(updatedUser);
+    }
+
+    /**
+     * Método para buscar todos os usuários
+     * @return Lista de usuários
+     */
+    @GetMapping
+    public ResponseEntity<List<UserDTO>> getAllUsers() {
+        List<UserDTO> users = userService.findAllUsers();
+        return ResponseEntity.ok(users);
     }
 }

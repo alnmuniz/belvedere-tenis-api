@@ -119,48 +119,48 @@ public class DataInitializer implements CommandLineRunner {
 
         // RESERVAS PASSADAS (últimos 3 dias)
         // Dia -3
-        bookings.add(createBooking(user1, today.minusDays(3), 8, 0, BookingType.JOGO, BookingStatus.CONFIRMED, zoneId));
-        bookings.add(createBooking(user2, today.minusDays(3), 14, 0, BookingType.AULA, BookingStatus.CONFIRMED, zoneId, "Aula Iniciante"));
-        bookings.add(createBooking(user3, today.minusDays(3), 18, 0, BookingType.JOGO, BookingStatus.CONFIRMED, zoneId));
+        bookings.add(createBooking(user1, today.minusDays(3), 8, 0, BookingType.RESERVA, BookingStatus.CONFIRMED, zoneId));
+        bookings.add(createBooking(user2, today.minusDays(3), 14, 0, BookingType.TURMA_COLETIVA, BookingStatus.CONFIRMED, zoneId, "Aula Iniciante"));
+        bookings.add(createBooking(user3, today.minusDays(3), 18, 0, BookingType.RESERVA, BookingStatus.CONFIRMED, zoneId));
 
         // Dia -2
-        bookings.add(createBooking(user4, today.minusDays(2), 7, 0, BookingType.JOGO, BookingStatus.CONFIRMED, zoneId));
-        bookings.add(createBooking(user5, today.minusDays(2), 15, 0, BookingType.AULA, BookingStatus.CONFIRMED, zoneId, "Aula Avançada"));
-        bookings.add(createBooking(user1, today.minusDays(2), 19, 0, BookingType.JOGO, BookingStatus.CONFIRMED, zoneId));
+        bookings.add(createBooking(user4, today.minusDays(2), 7, 0, BookingType.RESERVA, BookingStatus.CONFIRMED, zoneId));
+        bookings.add(createBooking(user5, today.minusDays(2), 15, 0, BookingType.TURMA_COLETIVA, BookingStatus.CONFIRMED, zoneId, "Aula Avançada"));
+        bookings.add(createBooking(user1, today.minusDays(2), 19, 0, BookingType.RESERVA, BookingStatus.CONFIRMED, zoneId));
 
         // Dia -1
-        bookings.add(createBooking(user2, today.minusDays(1), 9, 0, BookingType.AULA, BookingStatus.CONFIRMED, zoneId, "Aula Intermediária"));
-        bookings.add(createBooking(user3, today.minusDays(1), 16, 0, BookingType.JOGO, BookingStatus.CONFIRMED, zoneId));
-        bookings.add(createBooking(user4, today.minusDays(1), 20, 0, BookingType.JOGO, BookingStatus.CONFIRMED, zoneId));
+        bookings.add(createBooking(user2, today.minusDays(1), 9, 0, BookingType.TURMA_COLETIVA, BookingStatus.CONFIRMED, zoneId, "Aula Intermediária"));
+        bookings.add(createBooking(user3, today.minusDays(1), 16, 0, BookingType.RESERVA, BookingStatus.CONFIRMED, zoneId));
+        bookings.add(createBooking(user4, today.minusDays(1), 20, 0, BookingType.RESERVA, BookingStatus.CONFIRMED, zoneId));
 
         // RESERVAS DE HOJE
-        bookings.add(createBooking(user1, today, 8, 0, BookingType.JOGO, BookingStatus.CONFIRMED, zoneId));
-        bookings.add(createBooking(user2, today, 11, 0, BookingType.JOGO, BookingStatus.CONFIRMED, zoneId));
-        bookings.add(createBooking(admin, today, 14, 0, BookingType.AULA, BookingStatus.CONFIRMED, zoneId, "Aula Adulto - Iniciante"));
-        bookings.add(createBooking(user3, today, 18, 0, BookingType.JOGO, BookingStatus.CONFIRMED, zoneId));
-        bookings.add(createBooking(user4, today, 19, 0, BookingType.AULA, BookingStatus.CONFIRMED, zoneId, "Aula Kids"));
+        bookings.add(createBooking(user1, today, 8, 0, BookingType.RESERVA, BookingStatus.CONFIRMED, zoneId));
+        bookings.add(createBooking(user2, today, 11, 0, BookingType.RESERVA, BookingStatus.CONFIRMED, zoneId));
+        bookings.add(createBooking(admin, today, 14, 0, BookingType.TURMA_COLETIVA, BookingStatus.CONFIRMED, zoneId, "Aula Adulto - Iniciante"));
+        bookings.add(createBooking(user3, today, 18, 0, BookingType.RESERVA, BookingStatus.CONFIRMED, zoneId));
+        bookings.add(createBooking(user4, today, 19, 0, BookingType.TURMA_COLETIVA, BookingStatus.CONFIRMED, zoneId, "Aula Kids"));
 
         // RESERVAS FUTURAS (próximos 3 dias)
         // Dia +1
-        bookings.add(createBooking(user5, today.plusDays(1), 7, 0, BookingType.JOGO, BookingStatus.CONFIRMED, zoneId));
-        bookings.add(createBooking(user1, today.plusDays(1), 13, 0, BookingType.AULA, BookingStatus.CONFIRMED, zoneId, "Aula Técnica"));
-        bookings.add(createBooking(user2, today.plusDays(1), 17, 0, BookingType.JOGO, BookingStatus.CONFIRMED, zoneId));
+        bookings.add(createBooking(user5, today.plusDays(1), 7, 0, BookingType.RESERVA, BookingStatus.CONFIRMED, zoneId));
+        bookings.add(createBooking(user1, today.plusDays(1), 13, 0, BookingType.TURMA_COLETIVA, BookingStatus.CONFIRMED, zoneId, "Aula Técnica"));
+        bookings.add(createBooking(user2, today.plusDays(1), 17, 0, BookingType.RESERVA, BookingStatus.CONFIRMED, zoneId));
 
         // Dia +2
-        bookings.add(createBooking(user3, today.plusDays(2), 8, 0, BookingType.AULA, BookingStatus.CONFIRMED, zoneId, "Aula Condicionamento"));
-        bookings.add(createBooking(user4, today.plusDays(2), 15, 0, BookingType.JOGO, BookingStatus.CONFIRMED, zoneId));
-        bookings.add(createBooking(user5, today.plusDays(2), 18, 0, BookingType.JOGO, BookingStatus.CONFIRMED, zoneId));
+        bookings.add(createBooking(user3, today.plusDays(2), 8, 0, BookingType.TURMA_COLETIVA, BookingStatus.CONFIRMED, zoneId, "Aula Condicionamento"));
+        bookings.add(createBooking(user4, today.plusDays(2), 15, 0, BookingType.RESERVA, BookingStatus.CONFIRMED, zoneId));
+        bookings.add(createBooking(user5, today.plusDays(2), 18, 0, BookingType.RESERVA, BookingStatus.CONFIRMED, zoneId));
 
         // Dia +3
-        bookings.add(createBooking(user1, today.plusDays(3), 9, 0, BookingType.JOGO, BookingStatus.CONFIRMED, zoneId));
-        bookings.add(createBooking(user2, today.plusDays(3), 14, 0, BookingType.AULA, BookingStatus.CONFIRMED, zoneId, "Aula Dupla"));
-        bookings.add(createBooking(user3, today.plusDays(3), 19, 0, BookingType.JOGO, BookingStatus.CONFIRMED, zoneId));
+        bookings.add(createBooking(user1, today.plusDays(3), 9, 0, BookingType.RESERVA, BookingStatus.CONFIRMED, zoneId));
+        bookings.add(createBooking(user2, today.plusDays(3), 14, 0, BookingType.TURMA_COLETIVA, BookingStatus.CONFIRMED, zoneId, "Aula Dupla"));
+        bookings.add(createBooking(user3, today.plusDays(3), 19, 0, BookingType.RESERVA, BookingStatus.CONFIRMED, zoneId));
 
         // Algumas reservas canceladas para variedade
-        Booking cancelledBooking = createBooking(user4, today.plusDays(1), 10, 0, BookingType.JOGO, BookingStatus.CANCELLED, zoneId);
+        Booking cancelledBooking = createBooking(user4, today.plusDays(1), 10, 0, BookingType.RESERVA, BookingStatus.CANCELLED, zoneId);
         bookings.add(cancelledBooking);
 
-        Booking pendingBooking = createBooking(user5, today.plusDays(2), 11, 0, BookingType.AULA, BookingStatus.PENDING, zoneId, "Aula Experimental");
+        Booking pendingBooking = createBooking(user5, today.plusDays(2), 11, 0, BookingType.TURMA_COLETIVA, BookingStatus.PENDING, zoneId, "Aula Experimental");
         bookings.add(pendingBooking);
 
         return bookings;
