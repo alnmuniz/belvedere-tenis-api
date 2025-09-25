@@ -1,7 +1,68 @@
 # belvedere-tenis-api
 Api para sistema de reserva de quadra de tenis do Condomínio Belvedere Hill
 
-## Configuração do Banco de Dados
+## 🚀 Executando com Docker
+
+### Pré-requisitos
+- Docker instalado na máquina
+- PostgreSQL rodando (via Docker ou localmente)
+
+### 1. Configuração das Variáveis de Ambiente
+
+Primeiro, copie o arquivo de exemplo e configure as variáveis de ambiente:
+
+```bash
+cp .env.example .env
+```
+
+Edite o arquivo `.env` com suas configurações:
+
+```bash
+# Banco de Dados
+SPRING_DATASOURCE_URL=jdbc:postgresql://172.17.0.2:5432/tennis_court
+SPRING_DATASOURCE_USERNAME=admin
+SPRING_DATASOURCE_PASSWORD=mysecretpassword
+
+# Auth0
+AUTH0_AUDIENCE=https://belvedere.tenis.api
+AUTH0_ISSUER_URI=https://dev-xvezaz1t34nrsh0d.us.auth0.com/
+
+# SendGrid
+SENDGRID_API_KEY=sua_chave_aqui
+SENDGRID_FROM_EMAIL=seu-email@dominio.com
+
+# Frontend
+APP_FRONTEND_URL=http://localhost:5173
+```
+
+### 2. Build da Imagem Docker
+
+```bash
+docker build -t belvedere-tenis-api:latest .
+```
+
+### 3. Execução do Container
+
+```bash
+docker run -d --name belvedere-tenis-api -p 8080:8080 --env-file .env belvedere-tenis-api:latest
+```
+
+### 4. Verificação
+
+A aplicação estará disponível em: **http://localhost:8080**
+
+Para verificar os logs:
+```bash
+docker logs belvedere-tenis-api
+```
+
+Para parar o container:
+```bash
+docker stop belvedere-tenis-api
+docker rm belvedere-tenis-api
+```
+
+## 🗄️ Configuração do Banco de Dados
 
 Para executar a aplicação, é necessário ter o PostgreSQL rodando. Você pode usar Docker para facilitar a configuração:
 
@@ -21,6 +82,67 @@ docker run --rm --name pg-condominio -e POSTGRES_PASSWORD=mysecretpassword -e PO
 - **`postgres`**: Usa a imagem oficial do PostgreSQL
 
 Após executar este comando, o banco de dados estará disponível em `localhost:5432` e a aplicação poderá se conectar usando as credenciais configuradas no `application.yml`.
+
+## 🔧 Desenvolvimento Local
+
+### Executando sem Docker
+
+Para desenvolvimento local, você pode executar a aplicação diretamente:
+
+```bash
+# Instalar dependências
+./mvnw clean install
+
+# Executar a aplicação
+./mvnw spring-boot:run
+```
+
+### Configuração para Desenvolvimento
+
+Para desenvolvimento local, ajuste o arquivo `.env`:
+
+```bash
+# Para desenvolvimento local, use localhost
+SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/tennis_court
+```
+
+## 🐛 Troubleshooting
+
+### Problemas de Conectividade com PostgreSQL
+
+Se a aplicação não conseguir conectar ao banco:
+
+1. **Verifique se o PostgreSQL está rodando:**
+   ```bash
+   docker ps | grep postgres
+   ```
+
+2. **Descubra o IP do container PostgreSQL:**
+   ```bash
+   docker inspect pg-condominio | grep IPAddress
+   ```
+
+3. **Atualize o arquivo `.env` com o IP correto:**
+   ```bash
+   SPRING_DATASOURCE_URL=jdbc:postgresql://[IP_DO_CONTAINER]:5432/tennis_court
+   ```
+
+### Problemas de Build Docker
+
+Se o build falhar:
+
+1. **Verifique se o Java 21 está configurado no Dockerfile**
+2. **Limpe o cache do Docker:**
+   ```bash
+   docker system prune -a
+   ```
+
+### Problemas de Permissão
+
+Se houver problemas de permissão no Windows:
+
+1. **Execute o PowerShell como Administrador**
+2. **Verifique se o Docker Desktop está rodando**
 
 ## Logging de Requisições
 
