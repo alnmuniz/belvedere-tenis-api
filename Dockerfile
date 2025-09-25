@@ -1,6 +1,6 @@
 # --- ESTÁGIO DE BUILD ---
 # Usamos uma imagem oficial do Maven com Java 21 para compilar o projeto.
-FROM maven:3.9-eclipse-temurin-21 AS build
+FROM maven:3.9-eclipse-temurin-21-alpine AS build
 
 # Define o diretório de trabalho dentro do container
 WORKDIR /app
@@ -22,7 +22,7 @@ RUN ./mvnw package -DskipTests
 
 # --- ESTÁGIO DE EXECUÇÃO ---
 # Usamos uma imagem Java 21 "slim", que é bem menor e otimizada para execução.
-FROM eclipse-temurin:21-jre-slim
+FROM eclipse-temurin:21-jre-alpine
 
 # Define o diretório de trabalho
 WORKDIR /app
@@ -34,4 +34,4 @@ COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
 
 # Comando para iniciar a aplicação quando o container for executado
-ENTRYPOINT ["java", "-jar", "/app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]

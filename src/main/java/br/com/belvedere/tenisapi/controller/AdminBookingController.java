@@ -47,6 +47,9 @@ public class AdminBookingController {
     @ResponseStatus(HttpStatus.CREATED)
     public BookingResponseDTO createBookingForUser(@Valid @RequestBody AdminBookingRequestDTO requestDTO, Authentication authentication) {
         String adminAuthProviderId = authentication.getName();
+        
         return bookingService.createBookingForUser(requestDTO, adminAuthProviderId);
     }
+
+
 }
