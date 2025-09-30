@@ -47,6 +47,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(authz -> {
                 // 2. PERMITE AS REQUISIÇÕES PREFLIGHT (OPTIONS)
                 authz.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
+                // Permite acesso aos endpoints do Actuator para healthcheck
+                authz.requestMatchers("/actuator/**").permitAll();
                 // Lê as rotas do application.yaml e as libera
                 authz.requestMatchers(HttpMethod.GET, securityProperties.getPublicGetRoutes().toArray(new String[0])).permitAll();
                 authz.requestMatchers(HttpMethod.POST, securityProperties.getPublicPostRoutes().toArray(new String[0])).permitAll();
