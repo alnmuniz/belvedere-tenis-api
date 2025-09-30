@@ -29,6 +29,22 @@ spring:
         format_sql: true
         default_schema: belvedere
 
+# Configuração do Spring Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
+  health:
+    db:
+      enabled: true
+    diskspace:
+      enabled: true
+
 auth0:
   audience: https://belvedere.tenis.api
   #issuer-uri: https://dev-xvezaz1t34nrsh0d.us.auth0.com/ 
