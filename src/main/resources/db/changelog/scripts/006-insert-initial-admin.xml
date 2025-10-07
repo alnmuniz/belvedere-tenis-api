@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+                            
+    <changeSet id="6" author="alnmuniz">
+        <comment>Insere um usuário administrador inicial</comment>
+        <insert tableName="users" schemaName="belvedere">
+            <column name="name" value="Andre Muniz"/>
+            <column name="email" value="alnmuniz@gmail.com"/>
+            <column name="apartment" value="1102"/>
+            <column name="role" value="ADMIN"/>
+            <column name="status" value="ACTIVE"/>
+            <column name="auth_provider_id" value="google-oauth2|118232728984586307358"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>
+
+

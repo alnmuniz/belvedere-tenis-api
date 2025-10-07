@@ -53,11 +53,11 @@ public class DataInitializer implements CommandLineRunner {
 
         // Admin
         User admin = new User();
-        admin.setName("Andre Muniz");
-        admin.setEmail("alnmuniz@gmail.com");
+        admin.setName("Luiza Vieira");
+        admin.setEmail("luizav@gmail.com");
         admin.setApartment("1102");
         admin.setRole(UserRole.ADMIN);
-        admin.setAuthProviderId("google-oauth2|118232728984586307358");
+        admin.setAuthProviderId("google-oauth2|12345644967464321654asdasdad");
         users.add(admin);
 
         // Usuários comuns

@@ -11,4 +11,5 @@
     <include file="db/changelog/scripts/003-enable-btree-gist-extension.xml"/>
     <include file="db/changelog/scripts/004-add-booking-exclusion-constraint.xml"/>
     <include file="db/changelog/scripts/005-add-status-to-users.xml"/>
+    <include file="db/changelog/scripts/006-insert-initial-admin.xml"/>
 </databaseChangeLog>
