@@ -24,6 +24,8 @@ spring:
       ddl-auto: validate
     # Mostra no console o SQL gerado pelo Hibernate. Ótimo para debug!
     show-sql: true
+    # Desabilita o padrão "Open Session In View" do Spring.
+    open-in-view: false
     properties:
       hibernate:
         format_sql: true
